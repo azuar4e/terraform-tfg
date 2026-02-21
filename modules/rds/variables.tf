@@ -10,3 +10,7 @@ variable "db_password" {
   type      = string
   sensitive = true
 }
+
+variable "eks_security_group_id" {
+  type = string
+}
