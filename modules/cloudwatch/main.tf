@@ -52,3 +52,20 @@ resource "aws_cloudwatch_metric_alarm" "sqs-queue-length" {
     QueueName = var.sqs_queue_name
   }
 }
+
+resource "aws_cloudwatch_metric_alarm" "eks-node-cpu" {
+  alarm_name                = "eks-node-cpu-alarm"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = 2
+  metric_name               = "node_cpu_utilization"
+  namespace                 = "ContainerInsights"
+  period                    = 300
+  statistic                 = "Average"
+  threshold                 = 80
+  alarm_description         = "EKS node CPU utilization high"
+  alarm_actions             = [aws_sns_topic.alarms.arn]
+
+  dimensions = {
+    ClusterName = var.eks_cluster_name
+  }
+}

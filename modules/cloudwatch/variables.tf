@@ -12,3 +12,8 @@ variable "sqs_queue_name" {
   description = "SQS queue name to monitor"
   type        = string
 }
+
+variable "eks_cluster_name" {
+  description = "EKS cluster name to monitor"
+  type        = string
+}

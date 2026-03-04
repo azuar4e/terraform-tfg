@@ -5,12 +5,6 @@ variable "private_subnet_ids" {
 variable "vpc_id" {
   type = string
 }
-
-variable "db_password" {
-  type      = string
-  sensitive = true
-}
-
 variable "eks_security_group_id" {
   type = string
 }
