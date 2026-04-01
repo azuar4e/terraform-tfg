@@ -5,6 +5,6 @@ variable "private_subnet_ids" {
 variable "vpc_id" {
   type = string
 }
-variable "eks_security_group_id" {
+variable "eks_cluster_security_group_id" {
   type = string
 }

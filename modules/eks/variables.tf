@@ -5,3 +5,7 @@ variable "private_subnet_ids" {
 variable "cluster_role_arn" {
   type = string
 }
+
+variable "vpc_id"  {
+  type = string
+}

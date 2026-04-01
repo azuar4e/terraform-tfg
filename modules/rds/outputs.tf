@@ -9,7 +9,3 @@ output "db_name" {
 output "instance_id" {
   value = aws_db_instance.postgres.identifier
 }
-
-output "secret_arn" {
-  value = aws_db_instance.postgres.master_user_secret[0].secret_arn
-}

@@ -3,5 +3,5 @@ data "aws_iam_role" "eks_cluster_role" {
 }
 
 data "aws_lambda_function" "scheduler" {
-  function_name = "microservices-scheduler"
+  function_name = "microservice-scheduler"
 }

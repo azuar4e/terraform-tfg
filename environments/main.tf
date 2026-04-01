@@ -25,6 +25,7 @@ module "eks" {
 
   private_subnet_ids = module.networks.private_subnet_ids
   cluster_role_arn   = data.aws_iam_role.eks_cluster_role.arn
+  vpc_id             = module.networks.vpc_id
 }
 
 module "rds" {
@@ -32,7 +33,7 @@ module "rds" {
 
   vpc_id                = module.networks.vpc_id
   private_subnet_ids    = module.networks.private_subnet_ids
-  eks_security_group_id = module.eks.cluster_security_group_id
+    eks_cluster_security_group_id = module.eks.cluster_security_group_id
 }
 
 module "route53" {
