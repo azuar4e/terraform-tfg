@@ -1,5 +1,6 @@
 resource "aws_sns_topic" "alarms" {
   name = "cloudwatch-alarms"
+  kms_master_key_id = "alias/aws/sns"
 }
 
 resource "aws_cloudwatch_metric_alarm" "lambda-errors" {

@@ -8,3 +8,7 @@ variable "vpc_id" {
 variable "eks_cluster_security_group_id" {
   type = string
 }
+
+variable "db_password" {
+  type = string
+}

@@ -4,6 +4,10 @@ resource "aws_dynamodb_table" "jobs" {
   hash_key     = "PK"
   range_key    = "SK"
 
+  server_side_encryption {
+    enabled = true
+  }
+
   attribute {
     name = "PK"
     type = "N"

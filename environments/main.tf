@@ -12,6 +12,21 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# modulo para guardar el tfstate remoto
+module "terraform_state_backend" {
+  source = "cloudposse/tfstate-backend/aws"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version     = "x.x.x"
+  namespace  = "tfg"
+  stage      = "dev"
+  name       = "azuar4e"
+  attributes = ["state"]
+
+  terraform_backend_config_file_path = "."
+  terraform_backend_config_file_name = "backend.tf"
+  force_destroy                      = true
+}
+
 # modules
 module "dynamo" {
   source = "../modules/dynamo"
@@ -26,6 +41,7 @@ module "eks" {
   private_subnet_ids = module.networks.private_subnet_ids
   cluster_role_arn   = data.aws_iam_role.eks_cluster_role.arn
   vpc_id             = module.networks.vpc_id
+  region             = "us-east-1"
 }
 
 module "rds" {
@@ -33,7 +49,8 @@ module "rds" {
 
   vpc_id                = module.networks.vpc_id
   private_subnet_ids    = module.networks.private_subnet_ids
-    eks_cluster_security_group_id = module.eks.cluster_security_group_id
+  eks_cluster_security_group_id = module.eks.cluster_security_group_id
+  db_password = var.db_password
 }
 
 module "route53" {

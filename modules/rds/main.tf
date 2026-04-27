@@ -6,10 +6,10 @@ resource "aws_db_instance" "postgres" {
   engine_version       = "17"
   instance_class       = "db.t3.micro"
   username             = "dbadmin"
-  password             = "tfg_password"
+  password             = var.db_password
   parameter_group_name = "default.postgres17"
   skip_final_snapshot  = true
-  publicly_accessible  = true
+  publicly_accessible  = false
   storage_encrypted    = true
 
   db_subnet_group_name   = aws_db_subnet_group.default.name

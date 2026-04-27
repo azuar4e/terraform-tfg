@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 resource "aws_eks_cluster" "main" {
   name     = "eks-cluster"
   role_arn = var.cluster_role_arn
@@ -7,7 +9,15 @@ resource "aws_eks_cluster" "main" {
     endpoint_public_access  = true
     endpoint_private_access = true
   }
+
+  encryption_config {
+    provider {
+      key_arn = "arn:aws:kms:${var.region}:${data.aws_caller_identity.current.account_id}:alias/aws/eks"
+    }
+    resources = ["secrets"]
+  }
 }
+
 
 resource "aws_eks_node_group" "node1" {
   cluster_name    = aws_eks_cluster.main.name

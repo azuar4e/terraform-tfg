@@ -1,0 +1,363 @@
+
+Result #1 CRITICAL Cluster allows access from a public CIDR: 0.0.0.0/0. 
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\eks\main.tf:7-11
+   via environments\main.tf:38-45 (module.eks)
+────────────────────────────────────────────────────────────────────────────────
+    3    resource "aws_eks_cluster" "main" {
+    .  
+    7  ┌   vpc_config {
+    8  │     subnet_ids              = var.private_subnet_ids
+    9  │     endpoint_public_access  = true
+   10  │     endpoint_private_access = true
+   11  └   }
+   ..  
+   19    }
+────────────────────────────────────────────────────────────────────────────────
+          ID aws-eks-no-public-cluster-access-to-cidr
+      Impact EKS can be accessed from the internet
+  Resolution Don't enable public access to EKS Clusters
+
+  More Information
+  - https://aquasecurity.github.io/tfsec/v1.28.1/checks/aws/eks/no-public-cluster-access-to-cidr/
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_cluster#vpc_config
+────────────────────────────────────────────────────────────────────────────────
+
+
+Result #2 CRITICAL Public cluster access is enabled. 
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\eks\main.tf:9
+   via environments\main.tf:38-45 (module.eks)
+────────────────────────────────────────────────────────────────────────────────
+    3    resource "aws_eks_cluster" "main" {
+    .  
+    9  [     endpoint_public_access  = true (true)
+   ..  
+   19    }
+────────────────────────────────────────────────────────────────────────────────
+          ID aws-eks-no-public-cluster-access
+      Impact EKS can be access from the internet
+  Resolution Don't enable public access to EKS Clusters
+
+  More Information
+  - https://aquasecurity.github.io/tfsec/v1.28.1/checks/aws/eks/no-public-cluster-access/
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_cluster#endpoint_public_access
+────────────────────────────────────────────────────────────────────────────────
+
+
+Result #3 CRITICAL Security group rule allows egress to multiple public internet addresses. 
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\rds\security_groups.tf:18
+   via environments\main.tf:47-54 (module.rds)
+────────────────────────────────────────────────────────────────────────────────
+    1    resource "aws_security_group" "rds" {
+    .  
+   18  [     cidr_blocks = ["0.0.0.0/0"]
+   ..  
+   20    }
+────────────────────────────────────────────────────────────────────────────────
+          ID aws-ec2-no-public-egress-sgr
+      Impact Your port is egressing data to the internet
+  Resolution Set a more restrictive cidr range
+
+  More Information
+  - https://aquasecurity.github.io/tfsec/v1.28.1/checks/aws/ec2/no-public-egress-sgr/
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group
+────────────────────────────────────────────────────────────────────────────────
+
+
+Result #4 HIGH Topic encryption does not use a customer managed key. 
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\cloudwatch\main.tf:3
+   via environments\main.tf:63-70 (module.cloudwatch)
+────────────────────────────────────────────────────────────────────────────────
+    1    resource "aws_sns_topic" "alarms" {
+    2      name = "cloudwatch-alarms"
+    3  [   kms_master_key_id = "alias/aws/sns" ("alias/aws/sns")
+    4    }
+────────────────────────────────────────────────────────────────────────────────
+          ID aws-sns-topic-encryption-use-cmk
+      Impact Key management very limited when using default keys.
+  Resolution Use a CMK for SNS Topic encryption
+
+  More Information
+  - https://aquasecurity.github.io/tfsec/v1.28.1/checks/aws/sns/topic-encryption-use-cmk/
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic#example-with-server-side-encryption-sse
+────────────────────────────────────────────────────────────────────────────────
+
+
+Result #5 MEDIUM Point-in-time recovery is not enabled. 
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\dynamo\main.tf:1-39
+   via environments\main.tf:31-33 (module.dynamo)
+────────────────────────────────────────────────────────────────────────────────
+    1  ┌ resource "aws_dynamodb_table" "jobs" {
+    2  │   name         = var.table_name
+    3  │   billing_mode = "PAY_PER_REQUEST"
+    4  │   hash_key     = "PK"
+    5  │   range_key    = "SK"
+    6  │ 
+    7  │   server_side_encryption {
+    8  │     enabled = true
+    9  └   }
+   ..  
+────────────────────────────────────────────────────────────────────────────────
+          ID aws-dynamodb-enable-recovery
+      Impact Accidental or malicious writes and deletes can't be rolled back
+  Resolution Enable point in time recovery
+
+  More Information
+  - https://aquasecurity.github.io/tfsec/v1.28.1/checks/aws/dynamodb/enable-recovery/
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dynamodb_table#point_in_time_recovery
+────────────────────────────────────────────────────────────────────────────────
+
+
+Results #6-10 MEDIUM Control plane API logging is not enabled. (5 similar results)
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\eks\main.tf:3-19
+   via environments\main.tf:38-45 (module.eks)
+────────────────────────────────────────────────────────────────────────────────
+    3  ┌ resource "aws_eks_cluster" "main" {
+    4  │   name     = "eks-cluster"
+    5  │   role_arn = var.cluster_role_arn
+    6  │ 
+    7  │   vpc_config {
+    8  │     subnet_ids              = var.private_subnet_ids
+    9  │     endpoint_public_access  = true
+   10  │     endpoint_private_access = true
+   11  └   }
+   ..  
+────────────────────────────────────────────────────────────────────────────────
+  Individual Causes
+  - C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\eks\main.tf:38-45 (module.eks) 5 instances
+────────────────────────────────────────────────────────────────────────────────
+          ID aws-eks-enable-control-plane-logging
+      Impact Logging provides valuable information about access and usage
+  Resolution Enable logging for the EKS control plane
+
+  More Information
+  - https://aquasecurity.github.io/tfsec/v1.28.1/checks/aws/eks/enable-control-plane-logging/
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_cluster#enabled_cluster_log_types
+────────────────────────────────────────────────────────────────────────────────
+
+
+Result #11 MEDIUM VPC Flow Logs is not enabled for VPC  
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\networking\main.tf:1-9
+   via environments\main.tf:35-37 (module.networks)
+────────────────────────────────────────────────────────────────────────────────
+    1    resource "aws_vpc" "tfg-vpc" {
+    2      cidr_block           = "10.0.0.0/16"
+    3      enable_dns_hostnames = true
+    4      enable_dns_support   = true
+    5    
+    6      tags = {
+    7        Name = "tfg-vpc"
+    8      }
+    9    }
+────────────────────────────────────────────────────────────────────────────────
+          ID aws-ec2-require-vpc-flow-logs-for-all-vpcs
+      Impact Without VPC flow logs, you risk not having enough information about network traffic flow to investigate incidents or identify security issues.
+  Resolution Enable flow logs for VPC
+
+  More Information
+  - https://aquasecurity.github.io/tfsec/v1.28.1/checks/aws/ec2/require-vpc-flow-logs-for-all-vpcs/
+────────────────────────────────────────────────────────────────────────────────
+
+
+Result #12 MEDIUM Instance has very low backup retention period. 
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\rds\main.tf:1-17
+   via environments\main.tf:47-54 (module.rds)
+────────────────────────────────────────────────────────────────────────────────
+    1  ┌ resource "aws_db_instance" "postgres" {
+    2  │   identifier           = "postgres-db"
+    3  │   allocated_storage    = 20
+    4  │   db_name              = "mydb"
+    5  │   engine               = "postgres"
+    6  │   engine_version       = "17"
+    7  │   instance_class       = "db.t3.micro"
+    8  │   username             = "dbadmin"
+    9  └   password             = var.db_password
+   ..  
+────────────────────────────────────────────────────────────────────────────────
+          ID aws-rds-specify-backup-retention
+      Impact Potential loss of data and short opportunity for recovery
+  Resolution Explicitly set the retention period to greater than the default
+
+  More Information
+  - https://aquasecurity.github.io/tfsec/v1.28.1/checks/aws/rds/specify-backup-retention/
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster#backup_retention_period
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance#backup_retention_period
+────────────────────────────────────────────────────────────────────────────────
+
+
+Result #13 MEDIUM Instance does not have IAM Authentication enabled 
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\rds\main.tf:1-17
+────────────────────────────────────────────────────────────────────────────────
+    1  ┌ resource "aws_db_instance" "postgres" {
+    2  │   identifier           = "postgres-db"
+    3  │   allocated_storage    = 20
+    4  │   db_name              = "mydb"
+    5  │   engine               = "postgres"
+    6  │   engine_version       = "17"
+    7  │   instance_class       = "db.t3.micro"
+    8  │   username             = "dbadmin"
+    9  └   password             = var.db_password
+   ..  
+────────────────────────────────────────────────────────────────────────────────
+  Rego Package builtin.aws.rds.aws0176
+     Rego Rule deny
+────────────────────────────────────────────────────────────────────────────────
+
+
+Result #14 MEDIUM Instance does not have Deletion Protection enabled 
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\rds\main.tf:1-17
+────────────────────────────────────────────────────────────────────────────────
+    1  ┌ resource "aws_db_instance" "postgres" {
+    2  │   identifier           = "postgres-db"
+    3  │   allocated_storage    = 20
+    4  │   db_name              = "mydb"
+    5  │   engine               = "postgres"
+    6  │   engine_version       = "17"
+    7  │   instance_class       = "db.t3.micro"
+    8  │   username             = "dbadmin"
+    9  └   password             = var.db_password
+   ..  
+────────────────────────────────────────────────────────────────────────────────
+  Rego Package builtin.aws.rds.aws0177
+     Rego Rule deny
+────────────────────────────────────────────────────────────────────────────────
+
+
+Result #15 LOW Table encryption explicitly uses the default KMS key. 
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\dynamo\main.tf:7-9
+   via environments\main.tf:31-33 (module.dynamo)
+────────────────────────────────────────────────────────────────────────────────
+    1    resource "aws_dynamodb_table" "jobs" {
+    .  
+    7  ┌   server_side_encryption {
+    8  │     enabled = true
+    9  └   }
+   ..  
+   39    }
+────────────────────────────────────────────────────────────────────────────────
+          ID aws-dynamodb-table-customer-key
+      Impact Using AWS managed keys does not allow for fine grained control
+  Resolution Enable server side encryption with a customer managed key
+
+  More Information
+  - https://aquasecurity.github.io/tfsec/v1.28.1/checks/aws/dynamodb/table-customer-key/
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dynamodb_table#server_side_encryption
+────────────────────────────────────────────────────────────────────────────────
+
+
+Result #16 LOW Instance does not have performance insights enabled. 
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\rds\main.tf:1-17
+   via environments\main.tf:47-54 (module.rds)
+────────────────────────────────────────────────────────────────────────────────
+    1  ┌ resource "aws_db_instance" "postgres" {
+    2  │   identifier           = "postgres-db"
+    3  │   allocated_storage    = 20
+    4  │   db_name              = "mydb"
+    5  │   engine               = "postgres"
+    6  │   engine_version       = "17"
+    7  │   instance_class       = "db.t3.micro"
+    8  │   username             = "dbadmin"
+    9  └   password             = var.db_password
+   ..  
+────────────────────────────────────────────────────────────────────────────────
+          ID aws-rds-enable-performance-insights
+      Impact Without adequate monitoring, performance related issues may go unreported and potentially lead to compromise.
+  Resolution Enable performance insights
+
+  More Information
+  - https://aquasecurity.github.io/tfsec/v1.28.1/checks/aws/rds/enable-performance-insights/
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster_instance#performance_insights_kms_key_id
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance#performance_insights_kms_key_id
+────────────────────────────────────────────────────────────────────────────────
+
+
+Result #17 LOW Security group rule does not have a description. 
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\rds\security_groups.tf:14-19
+   via environments\main.tf:47-54 (module.rds)
+────────────────────────────────────────────────────────────────────────────────
+    1    resource "aws_security_group" "rds" {
+    .  
+   14  ┌   egress {
+   15  │     from_port   = 0
+   16  │     to_port     = 0
+   17  │     protocol    = "-1"
+   18  │     cidr_blocks = ["0.0.0.0/0"]
+   19  └   }
+   20    }
+────────────────────────────────────────────────────────────────────────────────
+          ID aws-ec2-add-description-to-security-group-rule
+      Impact Descriptions provide context for the firewall rule reasons
+  Resolution Add descriptions for all security groups rules
+
+  More Information
+  - https://aquasecurity.github.io/tfsec/v1.28.1/checks/aws/ec2/add-description-to-security-group-rule/
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule
+────────────────────────────────────────────────────────────────────────────────
+
+
+Result #18 LOW Security group rule does not have a description. 
+────────────────────────────────────────────────────────────────────────────────
+  C:\Users\angel\OneDrive\Documentos\tfg-microservices-aws-k8\terraform\modules\rds\security_groups.tf:6-12
+   via environments\main.tf:47-54 (module.rds)
+────────────────────────────────────────────────────────────────────────────────
+    1    resource "aws_security_group" "rds" {
+    .  
+    6  ┌   ingress {
+    7  │     from_port       = 5432
+    8  │     to_port         = 5432
+    9  │     protocol        = "tcp"
+   10  │     # cidr_blocks     = ["10.0.0.0/16"]
+   11  │     security_groups = [var.eks_cluster_security_group_id]
+   12  └   }
+   ..  
+────────────────────────────────────────────────────────────────────────────────
+          ID aws-ec2-add-description-to-security-group-rule
+      Impact Descriptions provide context for the firewall rule reasons
+  Resolution Add descriptions for all security groups rules
+
+  More Information
+  - https://aquasecurity.github.io/tfsec/v1.28.1/checks/aws/ec2/add-description-to-security-group-rule/
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule
+────────────────────────────────────────────────────────────────────────────────
+
+
+  timings
+  ──────────────────────────────────────────
+  disk i/o             3.9997ms
+  parsing              123.1877ms
+  adaptation           0s
+  checks               11.5739ms
+  total                138.7613ms
+
+  counts
+  ──────────────────────────────────────────
+  modules downloaded   0
+  modules processed    12
+  blocks processed     317
+  files read           46
+
+  results
+  ──────────────────────────────────────────
+  passed               15
+  ignored              10
+  critical             3
+  high                 1
+  medium               10
+  low                  4
+
+  15 passed, 10 ignored, 18 potential problem(s) detected.
+

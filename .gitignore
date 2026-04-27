@@ -3,3 +3,4 @@ environments/terraform.tfstate
 environments/terraform.tfstate.backup
 environments/.terraform/
 environments/.terraform.lock.hcl
+environments/errored.tfstate
