@@ -4,6 +4,8 @@
 
 The source code in this repository includes the Terraform configuration files used to provision the infrastructure of the AWS Learner Lab for my bachelor's degree project. Except the configuration of Simple Queue Service (SQS), Simple Notification Service (SNS) and Lambda Function for the re-scheduler, all the infrastructure is provided in these configuration files.
 
+The complete explanation of the project can be found at my [TFG](https://github.com/azuar4e/tfg) repository.
+
 ## Overview
 
 ![Services](assets/diagram.png)
